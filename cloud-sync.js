@@ -170,7 +170,7 @@
       <div class="cloud-code-card haku-code"><span>はく · 復元コード / 恢复码</span><strong>${codes.haku}</strong><button data-copy-code="${codes.haku}">コピー / 复制</button></div>
       <div class="cloud-code-card risa-code"><span>りさ · 招待コード / 邀请码</span><strong>${codes.risa}</strong><button data-copy-code="${codes.risa}">コピー / 复制</button></div>
       <p class="cloud-warning">この2つのコードを知っている人は、対応する役割で参加できます。公開しないでください。<br>知道配对码的人可以加入，请勿公开。</p>
-      <button id="finishCloudSetup" class="cloud-primary simple">保存しました / 已保存</button>`;
+      <button id="finishCloudSetup" class="cloud-primary simple">保存完了 ✓ / 已妥善保存</button>`;
   }
 
   async function copyCode(code) {

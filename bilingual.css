@@ -1,0 +1,13 @@
+body{font-family:'Noto Sans JP','Noto Sans SC',sans-serif}
+.brand b i{font-style:normal;font-size:10px;font-weight:500;color:var(--muted);margin-left:4px}
+.brand-mark,.brand b,.hero-copy h1,.heart-seal,.card-head h2,.section-title h2,.avatar,.big-date strong,.promise-card p,.form-heading h1,.step-title h2,.result-hero h1,.words-person h2,.modal-card h2{font-family:'Noto Serif JP','Noto Serif SC',serif}
+.translation{display:block;color:var(--muted);font-family:'Noto Sans SC',sans-serif;font-size:.58em;font-weight:500;line-height:1.5;margin-top:5px}
+.translation-inline{font-family:'Noto Sans SC',sans-serif;font-size:.9em}
+.hero-translation{font-family:'Noto Sans SC',sans-serif;font-size:13px;margin:-3px 0 12px!important}
+.field label .translation{font-size:11px;margin-top:3px}
+.note-card .translation,.promise-card .translation{font-size:11px}
+.modal-card h2 .translation{font-size:12px}
+.milestone-card{display:grid;grid-template-columns:1.05fr 1fr 70px 1fr;align-items:center;gap:22px;background:rgba(255,253,250,.82);border:1px solid var(--line);border-radius:22px;padding:24px 30px;margin-bottom:22px;box-shadow:0 10px 30px rgba(90,65,55,.05)}
+.milestone-intro h2{font-family:'Noto Serif JP','Noto Serif SC',serif;margin:7px 0 0}.milestone{display:grid;grid-template-columns:1fr auto;align-items:end;border-left:1px solid var(--line);padding-left:24px}.milestone-date{grid-column:1/-1;color:var(--rose-deep);font-size:11px;letter-spacing:1.5px;margin-bottom:8px}.milestone b{font-family:'Noto Serif JP','Noto Serif SC',serif}.milestone b small,.milestone strong small{display:block;color:var(--muted);font-family:'Noto Sans SC',sans-serif;font-size:10px;font-weight:500;margin-top:4px}.milestone strong{font-family:'Noto Serif JP',serif;font-size:27px;color:var(--rose-deep);text-align:right}.milestone strong small i{font-style:normal}.milestone-path{height:1px;background:var(--line);position:relative}.milestone-path span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--paper);padding:5px;color:var(--rose)}
+@media(max-width:760px){.hero-translation{max-width:210px}.month-status{gap:15px}.month-status strong{text-align:right;white-space:nowrap}.main-action{line-height:1.55}}
+@media(max-width:760px){.milestone-card{grid-template-columns:1fr;padding:22px;gap:18px}.milestone{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}.milestone-path{display:none}}

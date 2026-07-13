@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#fff9f6" />
+  <title>月結び｜はく × りさ</title>
+  <link rel="icon" type="image/svg+xml" href="assets/line-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="bilingual.css" />
+  <link rel="stylesheet" href="score-album.css" />
+  <link rel="stylesheet" href="cinnamon-accent.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <div class="shell">
+    <header class="topbar">
+      <button class="brand" data-view="home" aria-label="ホームに戻る / 返回首页">
+        <span class="brand-mark">契</span><span><b>月結び <i>つきむすび</i></b><small>はく × りさ</small></span>
+      </button>
+      <button id="identityButton" class="identity-pill"><span id="identityDot"></span><span id="identityName">はく</span><span>⌄</span></button>
+    </header>
+
+    <main>
+      <section id="homeView" class="view active">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <span class="eyebrow">A LETTER FOR US, EVERY MONTH</span>
+            <h1>好きは、当たり前じゃない。<br><em>毎月もう一度、君を選びたい。</em></h1>
+            <p class="hero-translation">喜欢不是理所当然，而是每个月都想再选择你一次。</p>
+            <p id="dateLabel">今月の契約 / 本月契约 · 2026年7月</p>
+          </div>
+          <div class="cinnamon-charm" aria-hidden="true">
+            <span class="cinna-spark spark-a">✦</span><span class="cinna-spark spark-b">·</span>
+            <span class="cinna-ear ear-left"></span><span class="cinna-ear ear-right"></span>
+            <span class="cinna-face"><i class="eye eye-left"></i><i class="eye eye-right"></i><i class="cheek cheek-left"></i><i class="cheek cheek-right"></i><i class="cinna-mouth">⌣</i></span>
+            <span class="cinna-cloud cloud-a"></span><span class="cinna-cloud cloud-b"></span>
+          </div>
+          <div class="heart-seal"><span>はく</span><b>♡</b><span>りさ</span></div>
+        </div>
+
+        <div class="month-status">
+          <div><span class="status-dot"></span><span id="statusText">今月の契約は進行中 / 本月契约进行中</span></div>
+          <strong id="progressText">0 / 2 提出済み / 已提交</strong>
+        </div>
+
+        <section class="milestone-card" aria-label="ふたりの記念日 / 两个人的纪念日">
+          <div class="milestone-intro"><span class="eyebrow">OUR BEGINNING</span><h2>ふたりの始まり<small class="translation">我们的开始</small></h2></div>
+          <div class="milestone">
+            <span class="milestone-date">2026.06.05</span>
+            <b>出会った日<small>相识的日子</small></b>
+            <strong><span id="knownDays">—</span><small>日目 / 相识第 <i id="knownDaysCn">—</i> 天</small></strong>
+          </div>
+          <div class="milestone-path"><span>♡</span></div>
+          <div class="milestone">
+            <span class="milestone-date">2026.07.07</span>
+            <b>恋人になった日<small>开始交往的日子</small></b>
+            <strong><span id="loveDays">—</span><small>日目 / 恋爱第 <i id="loveDaysCn">—</i> 天</small></strong>
+          </div>
+        </section>
+
+        <div class="dashboard-grid">
+          <article class="primary-card">
+            <div class="card-head"><div><span class="eyebrow">MONTHLY CHECK-IN</span><h2>今月のふたりは、どうだった？<small class="translation">这个月，我们过得好吗？</small></h2></div><span class="paperclip">⌁</span></div>
+            <div class="people-row">
+              <div class="person"><div class="avatar haku">は</div><div><b>はく</b><span id="hakuState">記入待ち / 等待填写</span></div></div>
+              <div class="dotted-heart">♡</div>
+              <div class="person"><div class="avatar risa">り</div><div><b>りさ</b><span id="risaState">記入待ち / 等待填写</span></div></div>
+            </div>
+            <button id="startReview" class="main-action">今月の振り返りを始める / 开始月度回顾 <span>→</span></button>
+            <p class="privacy-note">🔒 ふたりが提出するまで、お互いの回答は表示されません<br>双方提交前，看不到对方的答案</p>
+          </article>
+
+          <aside class="side-stack">
+            <article class="note-card"><span class="tape"></span><span class="eyebrow">NEXT RENEWAL</span><div class="big-date"><strong id="dayNumber">31</strong><span>日<br><small id="monthNumber">7月</small></span></div><p>一緒に丁寧に暮らし、丁寧に相手を選ぶ。<small class="translation">一起认真生活，也认真选择彼此。</small></p></article>
+            <article class="promise-card"><span>今月の約束 / 本月约定</span><p>気持ちを翌日に持ち越さず、会いたい時は言葉にする。<small class="translation">不让情绪过夜，想念要说出口。</small></p><div class="signatures">Haku <b>♡</b> Risa</div></article>
+          </aside>
+        </div>
+
+        <section class="score-dashboard">
+          <div class="score-heading"><div><span class="eyebrow">TWO HEARTS, TWO SCORES</span><h2>ふたりの総合スコア<small class="translation">两个人的综合得点</small></h2></div><p>相手からもらった6項目の平均<br><small>对方给出的六项评分平均值</small></p></div>
+          <div class="score-summary">
+            <article class="person-score haku-score"><div class="avatar haku">は</div><div><span>はくの総合得点</span><small>りさからの評価 / りさ给はく的评分</small></div><strong id="hakuTotal">—</strong><em>/ 10</em></article>
+            <article class="person-score risa-score"><div class="avatar risa">り</div><div><span>りさの総合得点</span><small>はくからの評価 / はく给りさ的评分</small></div><strong id="risaTotal">—</strong><em>/ 10</em></article>
+          </div>
+          <article class="trend-card">
+            <div class="trend-head"><div><b>月ごとのスコア推移</b><small>每个月的两人得分走势</small></div><div class="trend-legend"><span class="haku-line">● はく</span><span class="risa-line">● りさ</span></div></div>
+            <div id="trendChart" class="trend-chart"></div>
+          </article>
+        </section>
+
+        <div class="section-title"><div><span class="eyebrow">OUR STORY</span><h2>ふたりの契約記録<small class="translation">我们的契约记录</small></h2></div><button id="resetData" class="text-button">レビューをリセット / 重置回顾</button></div>
+        <div id="historyList" class="history-list"></div>
+
+        <div class="section-title album-title"><div><span class="eyebrow">OUR ALBUM</span><h2>ふたりのアルバム<small class="translation">两个人的共享相册</small></h2></div><button id="addPhotos" class="album-action">＋ 写真を追加 / 添加照片</button></div>
+        <input id="photoInput" type="file" accept="image/*" multiple hidden>
+        <p class="album-notice">現在はこの端末だけに保存されます。クラウド版では、はくとりさの端末に同期されます。<br><span>当前体验版只保存在本机；云端版将同步到两个人的手机。</span></p>
+        <div id="albumGrid" class="album-grid"></div>
+      </section>
+
+      <section id="reviewView" class="view">
+        <button class="back-button" data-view="home">← 今月の契約へ / 返回本月契约</button>
+        <div class="form-heading"><span class="eyebrow">PRIVATE CHECK-IN</span><h1><span id="reviewerName">はく</span> の月間レビュー<small class="translation">月度回顾</small></h1><p>ゆっくり、正直に。正直さは、厳しさとは違います。<br><span class="translation-inline">慢慢写，诚实不等于尖锐。双方提交后才会公开答案。</span></p></div>
+        <form id="reviewForm">
+          <article class="form-card">
+            <div class="step-title"><span>01</span><div><h2>今月、相手から感じたことを採点する<small class="translation">给这个月感受到的对方打分</small></h2><p>1点＝しっかり改善したい / 需要认真改善　·　10点＝とても幸せ / 非常幸福</p></div></div>
+            <div id="scores" class="scores"></div>
+          </article>
+          <article class="form-card">
+            <div class="step-title"><span>02</span><div><h2>素直な気持ちを残す<small class="translation">留下一些真心话</small></h2><p>具体的な瞬間は、漠然とした評価よりも伝わります。 / 具体的瞬间比笼统评价更有力量。</p></div></div>
+            <div class="field"><label for="grateful">今月、相手に一番感謝したこと<small class="translation">这个月最感谢对方的事情</small></label><textarea id="grateful" name="grateful" placeholder="ありがとうと思ったのは…… / 谢谢你……" required></textarea></div>
+            <div class="field"><label for="happy">一番幸せだった瞬間<small class="translation">最幸福的一个瞬间</small></label><textarea id="happy" name="happy" placeholder="一番覚えていたいのは…… / 我最想记住的是……" required></textarea></div>
+            <div class="field"><label for="hurt">悲しかったこと・違和感があったこと<small class="translation">曾经感到难过或不舒服的事情</small></label><textarea id="hurt" name="hurt" placeholder="なければ「なし」でも大丈夫 / 没有也可以写“没有”" required></textarea></div>
+            <div class="field"><label for="hope">来月、ふたりで変えていきたいこと<small class="translation">希望下个月一起做出的改变</small></label><textarea id="hope" name="hope" placeholder="ふたりで……したい / 我希望我们可以……" required></textarea></div>
+            <div class="field"><label for="selfChange">自分が改善したいこと<small class="translation">我自己愿意改善的事情</small></label><textarea id="selfChange" name="selfChange" placeholder="私は……するようにする / 我愿意……" required></textarea></div>
+          </article>
+          <article class="form-card">
+            <div class="step-title"><span>03</span><div><h2>来月も、続けますか？<small class="translation">下个月，还要继续吗？</small></h2><p>今の気持ちに一番近いものを選んでください。 / 请选择此刻最真实的想法。</p></div></div>
+            <div class="renew-options">
+              <label><input type="radio" name="renew" value="continue" required><span><b>♡ 交際を続けたい / 愿意继续交往</b><small>来月もよろしくね / 下个月也请多关照</small></span></label>
+              <label><input type="radio" name="renew" value="improve"><span><b>♧ 一緒に改善しながら続けたい / 愿意继续，一起改善</b><small>新しい約束と一緒に / 带着新的约定走下去</small></span></label>
+              <label><input type="radio" name="renew" value="talk"><span><b>☁ まずはきちんと話し合いたい / 希望先认真谈谈</b><small>決める前に、ゆっくり話そう / 先好好沟通</small></span></label>
+              <label><input type="radio" name="renew" value="end"><span><b>◇ 契約を更新したくない / 不希望续约</b><small>お互いの本当の選択を尊重する / 尊重真实选择</small></span></label>
+            </div>
+          </article>
+          <div class="submit-zone"><p>提出後、今月の回答は変更できません。 / 提交后不能修改本月答案。</p><button class="main-action" type="submit">確認して回答を封印する / 确认并封存回顾 <span>→</span></button></div>
+        </form>
+      </section>
+
+      <section id="resultView" class="view">
+        <button class="back-button" data-view="home">← ホームへ / 返回首页</button>
+        <div id="resultHero" class="result-hero"></div>
+        <div id="scoreCompare" class="compare-grid"></div>
+        <div id="wordsCompare" class="words-grid"></div>
+      </section>
+    </main>
+    <footer>MADE FOR HAKU & RISA · 毎月、もう一度お互いを選ぶ / 每个月，重新选择彼此</footer>
+  </div>
+  <div id="identityModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><div class="modal-card"><span class="eyebrow">WHO ARE YOU?</span><h2>今、使っているのは？<small class="translation">现在是谁在使用？</small></h2><p>自分の振り返りだけを記入できます。 / 只能填写自己的回顾。</p><button data-person="haku"><span class="avatar haku">は</span><span><b>はくです / 我是 はく</b><small>はくのスペースへ / 切换到 はく</small></span></button><button data-person="risa"><span class="avatar risa">り</span><span><b>りさです / 我是 りさ</b><small>りさのスペースへ / 切换到 りさ</small></span></button></div></div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

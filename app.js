@@ -28,6 +28,40 @@ let data = JSON.parse(localStorage.getItem('haku-risa-contract') || '{}');
 data.months ||= {};
 data.months[monthKey] ||= {reviews:{}};
 const names = {haku:'はく', risa:'りさ'};
+const LIFF_ID = '2010691057-bPSQMjfx';
+let lineProfile = null;
+
+function setLineStatus(text,state){
+  const button=document.querySelector('#lineStatus');
+  document.querySelector('#lineStatusText').textContent=text;
+  button.className=`line-status ${state}`;
+}
+
+async function initializeLine(){
+  const button=document.querySelector('#lineStatus');
+  if(!window.liff){
+    setLineStatus('WEB MODE / 网页模式','error');
+    button.onclick=()=>showToast('LINE SDKを読み込めませんでした / LINE连接暂时不可用');
+    return;
+  }
+  try{
+    await liff.init({liffId:LIFF_ID});
+    if(liff.isLoggedIn()){
+      lineProfile=await liff.getProfile();
+      setLineStatus(`LINE · ${lineProfile.displayName}`,'connected');
+      button.title='LINEに接続済み / 已连接LINE';
+      button.onclick=()=>showToast(`LINE 接続済み / 已连接：${lineProfile.displayName}`);
+    }else{
+      setLineStatus('LINEでログイン / 使用LINE登录','web');
+      button.title='LINEログイン / LINE登录';
+      button.onclick=()=>liff.login({redirectUri:window.location.href});
+    }
+  }catch(error){
+    setLineStatus('WEB MODE / 网页模式','error');
+    button.title='通常のブラウザモード / 普通网页模式';
+    button.onclick=()=>showToast('通常のブラウザで開いています / 当前为普通网页模式');
+  }
+}
 
 function save(){localStorage.setItem('haku-risa-contract',JSON.stringify(data));}
 function month(){return data.months[monthKey];}
@@ -233,3 +267,4 @@ document.querySelector('#addPhotos').addEventListener('click',()=>document.query
 document.querySelector('#photoInput').addEventListener('change',event=>{addPhotos(event.target.files);event.target.value='';});
 renderHome();
 renderAlbum();
+initializeLine();

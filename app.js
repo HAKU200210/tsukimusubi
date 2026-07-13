@@ -120,7 +120,7 @@ function renderHome(){
   const both=hakuSubmitted&&risaSubmitted;
   document.querySelector('#dateLabel').textContent=`今月の契約 / 本月契约 · ${now.getFullYear()}年${now.getMonth()+1}月`;
   document.querySelector('#progressText').textContent=`${count} / 2 提出済み / 已提交`;
-  document.querySelector('#statusText').textContent=both?'ふたりの回答を公開しました / 双方回顾已公开':'今月の契約は進行中 / 本月契约进行中';
+  document.querySelector('#statusText').textContent=both?'回答公開済み / 双方已公开':'契約進行中 / 契约进行中';
   document.querySelector('#hakuState').textContent=hakuSubmitted?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
   document.querySelector('#risaState').textContent=risaSubmitted?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
   document.querySelector('#dayNumber').textContent=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();

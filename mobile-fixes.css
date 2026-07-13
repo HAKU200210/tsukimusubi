@@ -1,0 +1,42 @@
+.hero-copy h1>span,.hero-copy h1>em{display:block}
+
+@media(max-width:760px){
+  .shell{width:min(calc(100% - 20px),1120px)}
+  .topbar{height:auto;min-height:124px;padding:14px 0 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-content:center}
+  .brand{width:max-content;max-width:100%;min-width:0;margin:0 auto;gap:10px;white-space:nowrap}
+  .brand-mark{width:40px;height:40px;flex:none}
+  .brand>span:last-child{min-width:0}
+  .brand b{font-size:16px;white-space:nowrap}
+  .brand b i{white-space:nowrap}
+  .brand small{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
+  .topbar-actions{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .line-status{width:100%;max-width:none;min-width:0;min-height:40px;justify-content:center;padding:7px 10px}
+  .line-status-dot{flex:none}
+  #lineStatusText{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .identity-pill{min-width:88px;min-height:40px;justify-content:center;padding:7px 10px;white-space:nowrap}
+  #identityName{white-space:nowrap}
+  .hero-card{min-height:360px;padding:30px 20px 126px;align-items:flex-start}
+  .hero-copy{position:relative;z-index:4;width:100%;min-width:0}
+  .hero-copy h1{font-size:clamp(18px,5.6vw,23px);line-height:1.55;margin:14px 0 10px}
+  .hero-copy h1>span,.hero-copy h1>em{white-space:nowrap}
+  .hero-translation{max-width:none!important;white-space:nowrap;font-size:clamp(10px,2.85vw,12px);margin:0 0 12px!important}
+  #dateLabel{font-size:clamp(10px,2.9vw,12px);white-space:nowrap;margin:0}
+  .heart-seal{width:96px;height:96px;right:14px;bottom:16px;gap:6px}
+  .heart-seal b{font-size:21px}
+  .heart-seal span{font-size:12px}
+  .cinnamon-charm{left:17px;bottom:14px}
+  .month-status{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:16px 4px 14px;font-size:11px}
+  .month-status>div{display:flex;align-items:center;min-width:0}
+  .status-dot{flex:none;margin-right:6px}
+  #statusText{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .month-status strong{font-size:11px;text-align:right;white-space:nowrap}
+}
+
+@media(max-width:360px){
+  .brand b{font-size:15px}
+  .brand b i{font-size:9px}
+  .line-status{font-size:10px}
+  .identity-pill{min-width:80px}
+  .hero-copy h1{font-size:18px}
+  .hero-translation,#dateLabel{font-size:10px;letter-spacing:-.02em}
+}

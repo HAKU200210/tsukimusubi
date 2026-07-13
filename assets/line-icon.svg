@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+  <rect x="1" y="1" width="128" height="128" rx="28" fill="#EAF7FA" stroke="#000" stroke-opacity=".08" stroke-width="2"/>
+  <circle cx="27" cy="29" r="13" fill="#FFF" fill-opacity=".46"/>
+  <circle cx="105" cy="101" r="17" fill="#FFF" fill-opacity=".38"/>
+  <path d="M17 102c9-8 18-8 27 0s18 8 27 0 18-8 27 0 16 8 22 2" fill="none" stroke="#A8D3E1" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="65" cy="63" r="38" fill="#FFFCF7"/>
+  <circle cx="65" cy="63" r="37" fill="none" stroke="#C87274" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="82 4 38 3 62 5 28"/>
+  <circle cx="65" cy="63" r="32.5" fill="none" stroke="#C87274" stroke-opacity=".42" stroke-width="1.1" stroke-dasharray="48 3 72 4 46"/>
+  <text x="65" y="79" text-anchor="middle" fill="#C87274" font-family="Noto Serif JP, Yu Mincho, MS Mincho, serif" font-size="47" font-weight="600">契</text>
+  <path d="M58 106c2-3 5-3 7 0 2-3 5-3 7 0 0 4-4 7-7 9-3-2-7-5-7-9z" fill="#C87274" fill-opacity=".72"/>
+  <circle cx="99" cy="29" r="2" fill="#8FC3D5"/><circle cx="106" cy="36" r="1.4" fill="#8FC3D5"/>
+</svg>

@@ -47,7 +47,8 @@ async function initializeLine(){
   try{
     await liff.init({liffId:LIFF_ID});
     if(liff.isLoggedIn()){
-      lineProfile=await liff.getProfile();
+      const decodedToken=liff.getDecodedIDToken();
+      lineProfile={displayName:decodedToken?.name||'LINE User'};
       setLineStatus(`LINE · ${lineProfile.displayName}`,'connected');
       button.title='LINEに接続済み / 已连接LINE';
       button.onclick=()=>showToast(`LINE 接続済み / 已连接：${lineProfile.displayName}`);

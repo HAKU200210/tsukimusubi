@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="bilingual.css" />
-  <link rel="stylesheet" href="score-album.css" />
+  <link rel="stylesheet" href="score-album.css?v=20260713-3" />
   <link rel="stylesheet" href="cinnamon-accent.css" />
   <link rel="stylesheet" href="line-integration.css" />
   <link rel="stylesheet" href="cloud.css?v=20260713-2" />
@@ -77,9 +77,9 @@
           <article class="primary-card">
             <div class="card-head"><div><span class="eyebrow">MONTHLY CHECK-IN</span><h2>今月のふたりは、どうだった？<small class="translation">这个月，我们过得好吗？</small></h2></div><span class="paperclip">⌁</span></div>
             <div class="people-row">
-              <div class="person"><div class="avatar haku">は</div><div><b>はく</b><span id="hakuState">記入待ち / 等待填写</span></div></div>
+              <div class="person"><div class="avatar haku">白</div><div><b>はく</b><span id="hakuState">記入待ち / 等待填写</span></div></div>
               <div class="dotted-heart">♡</div>
-              <div class="person"><div class="avatar risa">り</div><div><b>りさ</b><span id="risaState">記入待ち / 等待填写</span></div></div>
+              <div class="person"><div class="avatar risa">凜</div><div><b>りさ</b><span id="risaState">記入待ち / 等待填写</span></div></div>
             </div>
             <button id="startReview" class="main-action">今月の振り返りを始める / 开始月度回顾 <span>→</span></button>
             <p class="privacy-note">🔒 ふたりが提出するまで、お互いの回答は表示されません<br>双方提交前，看不到对方的答案</p>
@@ -94,8 +94,8 @@
         <section class="score-dashboard">
           <div class="score-heading"><div><span class="eyebrow">TWO HEARTS, TWO SCORES</span><h2>ふたりの総合スコア<small class="translation">两个人的综合得点</small></h2></div><p>相手からもらった6項目の平均<br><small>对方给出的六项评分平均值</small></p></div>
           <div class="score-summary">
-            <article class="person-score haku-score"><div class="avatar haku">は</div><div><span>はくの総合得点</span><small>りさからの評価 / りさ给はく的评分</small></div><strong id="hakuTotal">—</strong><em>/ 10</em></article>
-            <article class="person-score risa-score"><div class="avatar risa">り</div><div><span>りさの総合得点</span><small>はくからの評価 / はく给りさ的评分</small></div><strong id="risaTotal">—</strong><em>/ 10</em></article>
+            <article class="person-score haku-score"><div class="avatar haku">白</div><div><span>はくの総合得点</span><small>りさからの評価 / りさ给はく的评分</small></div><strong id="hakuTotal">—</strong><em>/ 10</em></article>
+            <article class="person-score risa-score"><div class="avatar risa">凜</div><div><span>りさの総合得点</span><small>はくからの評価 / はく给りさ的评分</small></div><strong id="risaTotal">—</strong><em>/ 10</em></article>
           </div>
           <article class="trend-card">
             <div class="trend-head"><div><b>月ごとのスコア推移</b><small>每个月的两人得分走势</small></div><div class="trend-legend"><span class="haku-line">● はく</span><span class="risa-line">● りさ</span></div></div>
@@ -150,13 +150,13 @@
     </main>
     <footer>MADE FOR HAKU & RISA · 毎月、もう一度お互いを選ぶ / 每个月，重新选择彼此</footer>
   </div>
-  <div id="identityModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><div class="modal-card"><span class="eyebrow">WHO ARE YOU?</span><h2>今、使っているのは？<small class="translation">现在是谁在使用？</small></h2><p>自分の振り返りだけを記入できます。 / 只能填写自己的回顾。</p><button data-person="haku"><span class="avatar haku">は</span><span><b>はくです / 我是 はく</b><small>はくのスペースへ / 切换到 はく</small></span></button><button data-person="risa"><span class="avatar risa">り</span><span><b>りさです / 我是 りさ</b><small>りさのスペースへ / 切换到 りさ</small></span></button></div></div>
+  <div id="identityModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><div class="modal-card"><span class="eyebrow">WHO ARE YOU?</span><h2>今、使っているのは？<small class="translation">现在是谁在使用？</small></h2><p>自分の振り返りだけを記入できます。 / 只能填写自己的回顾。</p><button data-person="haku"><span class="avatar haku">白</span><span><b>はくです / 我是 はく</b><small>はくのスペースへ / 切换到 はく</small></span></button><button data-person="risa"><span class="avatar risa">凜</span><span><b>りさです / 我是 りさ</b><small>りさのスペースへ / 切换到 りさ</small></span></button></div></div>
   <div id="cloudModal" class="modal cloud-modal" aria-hidden="true"><div class="modal-backdrop cloud-modal-backdrop"></div><div class="modal-card cloud-modal-card" id="cloudModalBody"></div></div>
   <div id="toast" class="toast"></div>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="cloud-config.js"></script>
-  <script src="app.js"></script>
-  <script src="cloud-sync.js?v=20260713-2"></script>
+  <script src="app.js?v=20260713-3"></script>
+  <script src="cloud-sync.js?v=20260713-3"></script>
 </body>
 </html>

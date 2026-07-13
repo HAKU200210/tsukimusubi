@@ -28,6 +28,7 @@ let data = JSON.parse(localStorage.getItem('haku-risa-contract') || '{}');
 data.months ||= {};
 data.months[monthKey] ||= {reviews:{}};
 const names = {haku:'はく', risa:'りさ'};
+let resultMonthKey = monthKey;
 let cloudIdentityLocked = false;
 let cloudSubmissionStatus = null;
 const LIFF_ID = '2010691057-bPSQMjfx';
@@ -106,7 +107,7 @@ document.querySelectorAll('[data-person]').forEach(button=>button.addEventListen
 
 function setIdentityLabel(){
   document.querySelector('#identityName').textContent=names[currentPerson];
-  document.querySelector('#identityDot').textContent=currentPerson==='haku'?'は':'り';
+  document.querySelector('#identityDot').textContent=currentPerson==='haku'?'白':'凜';
   document.querySelector('#identityDot').style.background=currentPerson==='haku'?'var(--blue)':'var(--pink)';
 }
 
@@ -132,7 +133,7 @@ function renderHome(){
   const button=document.querySelector('#startReview');
   if(both&&reviews.haku&&reviews.risa){
     button.innerHTML='ふたりの回答を見る / 查看双方回顾 <span>→</span>';
-    button.onclick=()=>showView('result');
+    button.onclick=()=>openResult(monthKey);
   }else if(currentPerson==='haku'?hakuSubmitted:risaSubmitted){
     button.innerHTML='回答は封印済み · 相手を待っています / 已封存 · 等待对方 <span>♡</span>';
     button.onclick=()=>showToast('相手が提出した後、同時に公開されます / 对方提交后同时公开');
@@ -146,13 +147,25 @@ function renderHome(){
 
 function renderHistory(){
   const list=document.querySelector('#historyList');
-  const completed=Object.entries(data.months).filter(([,value])=>Object.keys(value.reviews||{}).length===2);
-  if(!completed.length){list.innerHTML='<div class="empty-history">最初の契約は、ふたりの提出後にここへ保存されます。<br>第一份共同契约会在双方提交后收藏在这里。</div>';return;}
-  list.innerHTML=completed.reverse().map(([key,value])=>{
+  const completed=Object.entries(data.months)
+    .filter(([,value])=>value.reviews?.haku&&value.reviews?.risa)
+    .sort(([a],[b])=>b.localeCompare(a));
+  if(!completed.length){list.innerHTML='<div class="empty-history">ふたりで完成した毎月の契約が、時系列でここに保存されます。<br>双方完成的每月契约都会按时间保存在这里。</div>';return;}
+  list.innerHTML=completed.map(([key,value])=>{
     const [year,monthNumber]=key.split('-');
     const average=(categories.reduce((sum,category)=>sum+scoreFor(value.reviews.haku,category)+scoreFor(value.reviews.risa,category),0)/12).toFixed(1);
-    return `<div class="history-item"><div><b>${year}年${+monthNumber}月 · ふたりの契約 / 双人契约</b><p>ふたりの平均 / 共同平均 ${average} 点 · 本音を保存しました / 已收藏真心话</p></div><span class="badge">更新完了 / 续约完成 ♡</span></div>`;
+    const renewed=[value.reviews.haku.renew,value.reviews.risa.renew].every(isPositive);
+    const status=renewed?'更新完了 / 续约完成 ♡':'話し合い / 需要沟通';
+    return `<button type="button" class="history-item history-button" data-history-month="${key}"><div><b>${year}年${+monthNumber}月 · ふたりの契約 / 双人契约</b><p>ふたりの平均 / 共同平均 ${average} 点 · タップして詳しく見る / 点击查看完整记录</p></div><span class="badge">${status}<i>→</i></span></button>`;
   }).join('');
+  list.querySelectorAll('[data-history-month]').forEach(button=>button.addEventListener('click',()=>openResult(button.dataset.historyMonth)));
+}
+
+function openResult(key=monthKey){
+  const reviews=data.months[key]?.reviews;
+  if(!reviews?.haku||!reviews?.risa)return showToast('まだふたりの提出が揃っていません / 双方尚未全部提交');
+  resultMonthKey=key;
+  showView('result');
 }
 
 function renderScoreDashboard(){
@@ -214,12 +227,14 @@ document.querySelector('#reviewForm').addEventListener('submit',async event=>{
 });
 
 function renderResult(){
-  const {haku,risa}=month().reviews;
+  const selectedMonth=data.months[resultMonthKey];
+  const {haku,risa}=selectedMonth?.reviews||{};
   if(!haku||!risa){showView('home');return;}
+  const [resultYear,resultMonthNumber]=resultMonthKey.split('-');
   const positive=[haku.renew,risa.renew].every(isPositive);
-  document.querySelector('#resultHero').innerHTML=`<span class="eyebrow">${positive?'AGREEMENT RENEWED':'A CONVERSATION FIRST'}</span><h1>${positive?'来月も、よろしくね ♡<small class="translation">下个月，也请继续相爱</small>':'まずは、ゆっくり話そう<small class="translation">先停下来，好好听彼此说话</small>'}</h1><p>はく：${escapeHtml(renewText(haku.renew))}<br>りさ：${escapeHtml(renewText(risa.renew))}</p>`;
+  document.querySelector('#resultHero').innerHTML=`<span class="eyebrow">${resultYear}年${+resultMonthNumber}月 · ${positive?'AGREEMENT RENEWED':'A CONVERSATION FIRST'}</span><h1>${positive?'来月も、よろしくね ♡<small class="translation">下个月，也请继续相爱</small>':'まずは、ゆっくり話そう<small class="translation">先停下来，好好听彼此说话</small>'}</h1><p>はく：${escapeHtml(renewText(haku.renew))}<br>りさ：${escapeHtml(renewText(risa.renew))}</p>`;
   document.querySelector('#scoreCompare').innerHTML=categories.map(category=>`<div class="score-box"><span>${category.ja}<small class="translation">${category.zh}</small></span><strong>${((scoreFor(haku,category)+scoreFor(risa,category))/2).toFixed(1)}</strong><small>はく ${scoreFor(haku,category)} · りさ ${scoreFor(risa,category)}</small></div>`).join('');
-  document.querySelector('#wordsCompare').innerHTML=['haku','risa'].map(person=>`<article class="words-person"><h2>${names[person]} から、ふたりへ<small class="translation">${names[person]} 写给我们的</small></h2>${fields.map(([key,ja,zh])=>`<div class="quote-block"><span>${ja} / ${zh}</span><p>${escapeHtml(month().reviews[person][key])}</p></div>`).join('')}</article>`).join('');
+  document.querySelector('#wordsCompare').innerHTML=['haku','risa'].map(person=>`<article class="words-person"><h2>${names[person]} から、ふたりへ<small class="translation">${names[person]} 写给我们的</small></h2>${fields.map(([key,ja,zh])=>`<div class="quote-block"><span>${ja} / ${zh}</span><p>${escapeHtml(selectedMonth.reviews[person][key])}</p></div>`).join('')}</article>`).join('');
 }
 
 function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));}
@@ -229,7 +244,7 @@ document.querySelector('#resetData').addEventListener('click',async()=>{
       if(window.TsukimusubiCloud?.isPaired()){
         await window.TsukimusubiCloud.resetMonth();
       }else{
-        data={months:{[monthKey]:{reviews:{}}}};
+        data.months[monthKey]={reviews:{}};
         save();
         renderHome();
       }

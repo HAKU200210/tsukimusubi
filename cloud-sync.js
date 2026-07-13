@@ -149,7 +149,7 @@
     return `<span class="eyebrow">PRIVATE CLOUD</span>
       <h2>ふたりのクラウドをつなぐ<small class="translation">连接两个人的云端空间</small></h2>
       <p>初めて作るのは、はくだけです。りさは後で招待コードから参加できます。<br>只需要はく创建一次；りさ之后使用邀请码加入。</p>
-      <button id="createCloudSpace" class="cloud-primary"><span class="avatar haku">は</span><span><b>はくとして新しい空間を作る</b><small>由はく创建新的共享空间</small></span></button>
+      <button id="createCloudSpace" class="cloud-primary"><span class="avatar haku">白</span><span><b>はくとして新しい空間を作る</b><small>由はく创建新的共享空间</small></span></button>
       <div class="cloud-divider"><span>または / 或者</span></div>
       <label class="cloud-code-field">ペアコード / 配对码<input id="joinCloudCode" autocomplete="off" maxlength="32" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"></label>
       <button id="joinCloudSpace" class="cloud-secondary">コードで参加 / 使用配对码加入</button>`;

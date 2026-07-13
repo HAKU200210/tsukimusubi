@@ -28,8 +28,15 @@ let data = JSON.parse(localStorage.getItem('haku-risa-contract') || '{}');
 data.months ||= {};
 data.months[monthKey] ||= {reviews:{}};
 const names = {haku:'はく', risa:'りさ'};
+let cloudIdentityLocked = false;
+let cloudSubmissionStatus = null;
 const LIFF_ID = '2010691057-bPSQMjfx';
 let lineProfile = null;
+
+function publishLineState(state){
+  window.tsukimusubiLineState=state;
+  document.dispatchEvent(new CustomEvent('tsukimusubi:line-ready',{detail:state}));
+}
 
 function setLineStatus(text,state){
   const button=document.querySelector('#lineStatus');
@@ -42,6 +49,7 @@ async function initializeLine(){
   if(!window.liff){
     setLineStatus('WEB MODE / 网页模式','error');
     button.onclick=()=>showToast('LINE SDKを読み込めませんでした / LINE连接暂时不可用');
+    publishLineState({loggedIn:false});
     return;
   }
   try{
@@ -52,15 +60,18 @@ async function initializeLine(){
       setLineStatus(`LINE · ${lineProfile.displayName}`,'connected');
       button.title='LINEに接続済み / 已连接LINE';
       button.onclick=()=>showToast(`LINE 接続済み / 已连接：${lineProfile.displayName}`);
+      publishLineState({loggedIn:true,displayName:lineProfile.displayName});
     }else{
       setLineStatus('LINEでログイン / 使用LINE登录','web');
       button.title='LINEログイン / LINE登录';
       button.onclick=()=>liff.login({redirectUri:window.location.href});
+      publishLineState({loggedIn:false});
     }
   }catch(error){
     setLineStatus('WEB MODE / 网页模式','error');
     button.title='通常のブラウザモード / 普通网页模式';
     button.onclick=()=>showToast('通常のブラウザで開いています / 当前为普通网页模式');
+    publishLineState({loggedIn:false});
   }
 }
 
@@ -76,13 +87,20 @@ function showView(id){document.querySelectorAll('.view').forEach(view=>view.clas
 document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
 
 function setIdentity(person){
+  if(cloudIdentityLocked){
+    document.querySelector('#identityModal').classList.remove('open');
+    return showToast('クラウドでは役割が固定されています / 云端模式下身份已固定');
+  }
   currentPerson=person;
   localStorage.setItem('contract-person',person);
   document.querySelector('#identityModal').classList.remove('open');
   renderHome();
   showToast(`${names[person]} に切り替えました / 已切换为 ${names[person]}`);
 }
-document.querySelector('#identityButton').addEventListener('click',()=>document.querySelector('#identityModal').classList.add('open'));
+document.querySelector('#identityButton').addEventListener('click',()=>{
+  if(cloudIdentityLocked)return showToast('クラウドでは役割が固定されています / 云端模式下身份已固定');
+  document.querySelector('#identityModal').classList.add('open');
+});
 document.querySelector('.modal-backdrop').addEventListener('click',()=>document.querySelector('#identityModal').classList.remove('open'));
 document.querySelectorAll('[data-person]').forEach(button=>button.addEventListener('click',()=>setIdentity(button.dataset.person)));
 
@@ -95,13 +113,15 @@ function setIdentityLabel(){
 function renderHome(){
   setIdentityLabel();
   const reviews=month().reviews;
-  const count=Object.keys(reviews).length;
-  const both=count===2;
+  const hakuSubmitted=cloudSubmissionStatus?cloudSubmissionStatus.haku:Boolean(reviews.haku);
+  const risaSubmitted=cloudSubmissionStatus?cloudSubmissionStatus.risa:Boolean(reviews.risa);
+  const count=Number(hakuSubmitted)+Number(risaSubmitted);
+  const both=hakuSubmitted&&risaSubmitted;
   document.querySelector('#dateLabel').textContent=`今月の契約 / 本月契约 · ${now.getFullYear()}年${now.getMonth()+1}月`;
   document.querySelector('#progressText').textContent=`${count} / 2 提出済み / 已提交`;
   document.querySelector('#statusText').textContent=both?'ふたりの回答を公開しました / 双方回顾已公开':'今月の契約は進行中 / 本月契约进行中';
-  document.querySelector('#hakuState').textContent=reviews.haku?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
-  document.querySelector('#risaState').textContent=reviews.risa?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
+  document.querySelector('#hakuState').textContent=hakuSubmitted?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
+  document.querySelector('#risaState').textContent=risaSubmitted?'封印済み / 已封存 ✓':'記入待ち / 等待填写';
   document.querySelector('#dayNumber').textContent=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   document.querySelector('#monthNumber').textContent=`${now.getMonth()+1}月`;
   const knownDays=relationshipDays(metDate),loveDays=relationshipDays(datingDate);
@@ -110,10 +130,10 @@ function renderHome(){
   document.querySelector('#loveDays').textContent=loveDays;
   document.querySelector('#loveDaysCn').textContent=loveDays;
   const button=document.querySelector('#startReview');
-  if(both){
+  if(both&&reviews.haku&&reviews.risa){
     button.innerHTML='ふたりの回答を見る / 查看双方回顾 <span>→</span>';
     button.onclick=()=>showView('result');
-  }else if(reviews[currentPerson]){
+  }else if(currentPerson==='haku'?hakuSubmitted:risaSubmitted){
     button.innerHTML='回答は封印済み · 相手を待っています / 已封存 · 等待对方 <span>♡</span>';
     button.onclick=()=>showToast('相手が提出した後、同時に公開されます / 对方提交后同时公开');
   }else{
@@ -158,6 +178,10 @@ function renderScoreDashboard(){
 }
 
 function startReview(){
+  if(window.TsukimusubiCloud&&!window.TsukimusubiCloud.isPaired()){
+    window.TsukimusubiCloud.openSetup();
+    return;
+  }
   document.querySelector('#reviewerName').textContent=names[currentPerson];
   document.querySelector('#reviewForm').reset();
   document.querySelector('#scores').innerHTML=categories.map((category,index)=>`<div class="score-row"><label>${category.ja}<small class="translation">${category.zh}</small></label><input type="range" name="score${index}" min="1" max="10" value="8"><output class="score-value">8</output></div>`).join('');
@@ -165,7 +189,7 @@ function startReview(){
   showView('review');
 }
 
-document.querySelector('#reviewForm').addEventListener('submit',event=>{
+document.querySelector('#reviewForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(month().reviews[currentPerson])return showToast('この回答は封印済みです / 这份回顾已经封存');
   const formData=new FormData(event.target);
@@ -173,10 +197,20 @@ document.querySelector('#reviewForm').addEventListener('submit',event=>{
   categories.forEach((category,index)=>scores[category.key]=+formData.get(`score${index}`));
   const review={scores,renew:formData.get('renew'),submittedAt:new Date().toISOString()};
   fields.forEach(([key])=>review[key]=formData.get(key).trim());
-  month().reviews[currentPerson]=review;
-  save();
-  showView('home');
-  showToast('回答を安全に封印しました / 回顾已安全封存 ♡');
+  const submitButton=event.target.querySelector('[type="submit"]');
+  submitButton.disabled=true;
+  try{
+    if(window.TsukimusubiCloud?.isPaired()){
+      await window.TsukimusubiCloud.submitReview(review);
+    }else{
+      month().reviews[currentPerson]=review;
+      save();
+    }
+    showView('home');
+    showToast('回答を安全に封印しました / 回顾已安全封存 ♡');
+  }catch(error){
+    showToast(`保存できませんでした / 保存失败：${error.message||error}`);
+  }finally{submitButton.disabled=false;}
 });
 
 function renderResult(){
@@ -189,12 +223,18 @@ function renderResult(){
 }
 
 function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));}
-document.querySelector('#resetData').addEventListener('click',()=>{
+document.querySelector('#resetData').addEventListener('click',async()=>{
   if(confirm('月間レビューをリセットしますか？写真は残ります。\n确定重置月度回顾吗？照片会保留。')){
-    data={months:{[monthKey]:{reviews:{}}}};
-    save();
-    renderHome();
-    showToast('レビューをリセットしました / 月度回顾已重置');
+    try{
+      if(window.TsukimusubiCloud?.isPaired()){
+        await window.TsukimusubiCloud.resetMonth();
+      }else{
+        data={months:{[monthKey]:{reviews:{}}}};
+        save();
+        renderHome();
+      }
+      showToast('レビューをリセットしました / 月度回顾已重置');
+    }catch(error){showToast(`リセットできません / 重置失败：${error.message||error}`);}
   }
 });
 
@@ -220,11 +260,14 @@ async function albumTransaction(mode,action){
 async function renderAlbum(){
   const grid=document.querySelector('#albumGrid');
   try{
-    const photos=await albumTransaction('readonly',store=>store.getAll());
+    const cloudActive=Boolean(window.TsukimusubiCloud?.isPaired());
+    const photos=cloudActive
+      ? await window.TsukimusubiCloud.listPhotos()
+      : await albumTransaction('readonly',store=>store.getAll());
     photos.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
     if(!photos.length){grid.innerHTML='<div class="album-empty">まだ写真はありません。ふたりの最初の一枚を追加してみよう。<br>还没有照片，添加属于你们的第一张回忆吧。</div>';return;}
-    grid.innerHTML=photos.map(photo=>`<article class="photo-card"><img src="${photo.data}" alt="${escapeHtml(photo.name)}"><div class="photo-meta"><span>${escapeHtml(photo.name)} · ${new Date(photo.createdAt).toLocaleDateString('ja-JP')}</span><button class="photo-delete" data-photo-id="${photo.id}" aria-label="写真を削除 / 删除照片">×</button></div></article>`).join('');
-    document.querySelectorAll('.photo-delete').forEach(button=>button.addEventListener('click',()=>deletePhoto(button.dataset.photoId)));
+    grid.innerHTML=photos.map(photo=>`<article class="photo-card"><img src="${escapeHtml(photo.data)}" alt="${escapeHtml(photo.name)}"><div class="photo-meta"><span>${escapeHtml(photo.name)} · ${new Date(photo.createdAt).toLocaleDateString('ja-JP')}</span><button class="photo-delete" data-photo-id="${photo.id}" data-photo-path="${escapeHtml(photo.path||'')}" aria-label="写真を削除 / 删除照片">×</button></div></article>`).join('');
+    document.querySelectorAll('.photo-delete').forEach(button=>button.addEventListener('click',()=>deletePhoto(button.dataset.photoId,button.dataset.photoPath)));
   }catch(error){grid.innerHTML='<div class="album-error">このブラウザではアルバムを保存できません。 / 当前浏览器无法保存相册。</div>';}
 }
 
@@ -246,6 +289,10 @@ function compressPhoto(file){
 }
 
 async function addPhotos(files){
+  if(window.TsukimusubiCloud&&!window.TsukimusubiCloud.isPaired()){
+    window.TsukimusubiCloud.openSetup();
+    return;
+  }
   const selected=[...files].slice(0,6);
   if(!selected.length)return;
   showToast('写真を保存しています / 正在保存照片…');
@@ -253,19 +300,60 @@ async function addPhotos(files){
     for(const file of selected){
       if(!file.type.startsWith('image/'))continue;
       const dataUrl=await compressPhoto(file);
-      await albumTransaction('readwrite',store=>store.put({id:`${Date.now()}-${Math.random().toString(36).slice(2)}`,name:file.name.replace(/\.[^.]+$/,''),data:dataUrl,createdAt:new Date().toISOString(),addedBy:currentPerson}));
+      const photoName=file.name.replace(/\.[^.]+$/,'');
+      if(window.TsukimusubiCloud?.isPaired()){
+        await window.TsukimusubiCloud.uploadPhoto({name:photoName,dataUrl});
+      }else{
+        await albumTransaction('readwrite',store=>store.put({id:`${Date.now()}-${Math.random().toString(36).slice(2)}`,name:photoName,data:dataUrl,createdAt:new Date().toISOString(),addedBy:currentPerson}));
+      }
     }
     await renderAlbum();showToast('アルバムに追加しました / 已添加到相册 ♡');
   }catch(error){showToast('保存できませんでした / 照片保存失败');}
 }
 
-async function deletePhoto(id){
+async function deletePhoto(id,path=''){
   if(!confirm('この写真を削除しますか？\n确定删除这张照片吗？'))return;
-  try{await albumTransaction('readwrite',store=>store.delete(id));await renderAlbum();showToast('写真を削除しました / 已删除照片');}catch(error){showToast('削除できませんでした / 删除失败');}
+  try{
+    if(window.TsukimusubiCloud?.isPaired())await window.TsukimusubiCloud.deletePhoto({id,path});
+    else await albumTransaction('readwrite',store=>store.delete(id));
+    await renderAlbum();showToast('写真を削除しました / 已删除照片');
+  }catch(error){showToast('削除できませんでした / 删除失败');}
 }
 
-document.querySelector('#addPhotos').addEventListener('click',()=>document.querySelector('#photoInput').click());
+document.querySelector('#addPhotos').addEventListener('click',()=>{
+  if(window.TsukimusubiCloud&&!window.TsukimusubiCloud.isPaired())return window.TsukimusubiCloud.openSetup();
+  document.querySelector('#photoInput').click();
+});
 document.querySelector('#photoInput').addEventListener('change',event=>{addPhotos(event.target.files);event.target.value='';});
+
+function applyCloudState({role,months,submissionStatus}){
+  cloudIdentityLocked=true;
+  cloudSubmissionStatus=submissionStatus;
+  currentPerson=role;
+  localStorage.setItem('contract-person',role);
+  data={months};
+  data.months[monthKey]||={reviews:{}};
+  const notice=document.querySelector('#albumNotice');
+  notice.classList.add('cloud-active');
+  notice.innerHTML='写真は暗号化通信でプライベートクラウドに保存され、ふたりの端末で同期されます。<br><span>照片通过加密连接保存在私密云端，并在两个人的设备间同步。</span>';
+  renderHome();
+}
+
+function setCloudUnpaired(){
+  cloudIdentityLocked=true;
+  cloudSubmissionStatus=null;
+  currentPerson='haku';
+  setIdentityLabel();
+}
+
+window.TsukimusubiApp={
+  monthKey,
+  showToast,
+  renderAlbum,
+  applyCloudState,
+  setCloudUnpaired,
+  escapeHtml
+};
 renderHome();
 renderAlbum();
 initializeLine();

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="score-album.css" />
   <link rel="stylesheet" href="cinnamon-accent.css" />
   <link rel="stylesheet" href="line-integration.css" />
+  <link rel="stylesheet" href="cloud.css" />
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
@@ -51,6 +52,10 @@
         <div class="month-status">
           <div><span class="status-dot"></span><span id="statusText">今月の契約は進行中 / 本月契约进行中</span></div>
           <strong id="progressText">0 / 2 提出済み / 已提交</strong>
+        </div>
+        <div id="cloudSyncBar" class="cloud-sync-bar waiting">
+          <div><span class="cloud-sync-dot"></span><span id="cloudSyncStatus">LINEログイン後に同期 / 登录LINE后启用云端</span></div>
+          <button id="cloudManage" class="cloud-manage" type="button">ペア設定 / 配对设置</button>
         </div>
 
         <section class="milestone-card" aria-label="ふたりの記念日 / 两个人的纪念日">
@@ -103,7 +108,7 @@
 
         <div class="section-title album-title"><div><span class="eyebrow">OUR ALBUM</span><h2>ふたりのアルバム<small class="translation">两个人的共享相册</small></h2></div><button id="addPhotos" class="album-action">＋ 写真を追加 / 添加照片</button></div>
         <input id="photoInput" type="file" accept="image/*" multiple hidden>
-        <p class="album-notice">現在はこの端末だけに保存されます。クラウド版では、はくとりさの端末に同期されます。<br><span>当前体验版只保存在本机；云端版将同步到两个人的手机。</span></p>
+        <p id="albumNotice" class="album-notice">現在はこの端末だけに保存されます。クラウド接続後、ふたりの端末に同期されます。<br><span>当前保存在本机；连接云端后将同步到两个人的手机。</span></p>
         <div id="albumGrid" class="album-grid"></div>
       </section>
 
@@ -146,8 +151,12 @@
     <footer>MADE FOR HAKU & RISA · 毎月、もう一度お互いを選ぶ / 每个月，重新选择彼此</footer>
   </div>
   <div id="identityModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><div class="modal-card"><span class="eyebrow">WHO ARE YOU?</span><h2>今、使っているのは？<small class="translation">现在是谁在使用？</small></h2><p>自分の振り返りだけを記入できます。 / 只能填写自己的回顾。</p><button data-person="haku"><span class="avatar haku">は</span><span><b>はくです / 我是 はく</b><small>はくのスペースへ / 切换到 はく</small></span></button><button data-person="risa"><span class="avatar risa">り</span><span><b>りさです / 我是 りさ</b><small>りさのスペースへ / 切换到 りさ</small></span></button></div></div>
+  <div id="cloudModal" class="modal cloud-modal" aria-hidden="true"><div class="modal-backdrop cloud-modal-backdrop"></div><div class="modal-card cloud-modal-card" id="cloudModalBody"></div></div>
   <div id="toast" class="toast"></div>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="cloud-config.js"></script>
   <script src="app.js"></script>
+  <script src="cloud-sync.js"></script>
 </body>
 </html>

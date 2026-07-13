@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="bilingual.css" />
   <link rel="stylesheet" href="score-album.css" />
   <link rel="stylesheet" href="cinnamon-accent.css" />
+  <link rel="stylesheet" href="line-integration.css" />
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
@@ -21,7 +22,12 @@
       <button class="brand" data-view="home" aria-label="ホームに戻る / 返回首页">
         <span class="brand-mark">契</span><span><b>月結び <i>つきむすび</i></b><small>はく × りさ</small></span>
       </button>
-      <button id="identityButton" class="identity-pill"><span id="identityDot"></span><span id="identityName">はく</span><span>⌄</span></button>
+      <div class="topbar-actions">
+        <button id="lineStatus" class="line-status checking" type="button" aria-label="LINE connection / LINE连接状态">
+          <span class="line-status-dot"></span><span id="lineStatusText">LINE 接続確認中 / 正在连接</span>
+        </button>
+        <button id="identityButton" class="identity-pill"><span id="identityDot"></span><span id="identityName">はく</span><span>⌄</span></button>
+      </div>
     </header>
 
     <main>
@@ -141,6 +147,7 @@
   </div>
   <div id="identityModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><div class="modal-card"><span class="eyebrow">WHO ARE YOU?</span><h2>今、使っているのは？<small class="translation">现在是谁在使用？</small></h2><p>自分の振り返りだけを記入できます。 / 只能填写自己的回顾。</p><button data-person="haku"><span class="avatar haku">は</span><span><b>はくです / 我是 はく</b><small>はくのスペースへ / 切换到 はく</small></span></button><button data-person="risa"><span class="avatar risa">り</span><span><b>りさです / 我是 りさ</b><small>りさのスペースへ / 切换到 りさ</small></span></button></div></div>
   <div id="toast" class="toast"></div>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

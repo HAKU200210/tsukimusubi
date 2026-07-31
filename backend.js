@@ -204,6 +204,7 @@
   function reviewFromRow(row) {
     return {
       ...row,
+      month: String(row.month || '').slice(0, 10),
       pair_id: row.pair_id || row.couple_id,
       author_role: newRole(row.author_role),
       scores: normalizeScores(row.scores),
@@ -228,7 +229,7 @@
     if (mode === 'cloud') {
       const result = await client.rpc('get_month_status', { p_month: month });
       if (result.error) throw result.error;
-      const row = result.data?.[0] || {};
+      const row = Array.isArray(result.data) ? (result.data[0] || {}) : (result.data || {});
       return { a: Boolean(row.haku_submitted), b: Boolean(row.risa_submitted) };
     }
     const rows = (readDemo().reviews || []).filter(row => row.month === month);

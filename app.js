@@ -352,10 +352,15 @@
     const [reviews, currentStatus, previousStatus, photos, memories] = await Promise.all([
       backend.loadReviews(), backend.monthStatus(monthKey), backend.monthStatus(previousMonth), backend.getPhotos(), backend.loadMemories()
     ]);
-    const previousCount = Number(previousStatus.a) + Number(previousStatus.b);
+    const visiblePrevious = reviews.filter(row => row.month === previousMonth);
+    const resolvedPreviousStatus = {
+      a: previousStatus.a || visiblePrevious.some(row => row.author_role === 'a'),
+      b: previousStatus.b || visiblePrevious.some(row => row.author_role === 'b')
+    };
+    const previousCount = Number(resolvedPreviousStatus.a) + Number(resolvedPreviousStatus.b);
     state.reviews = reviews;
     state.selectedMonth = previousCount === 1 ? previousMonth : monthKey;
-    state.status = previousCount === 1 ? previousStatus : currentStatus;
+    state.status = previousCount === 1 ? resolvedPreviousStatus : currentStatus;
     state.photos = photos;
     state.memories = memories;
     renderAll();

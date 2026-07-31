@@ -1,0 +1,17 @@
+{
+  "name": "\u6708\u7d50\u3073\uff5c\u306f\u304f \u00d7 \u308a\u3055",
+  "short_name": "\u6708\u7d50\u3073",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbf7f2",
+  "theme_color": "#fbf7f2",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

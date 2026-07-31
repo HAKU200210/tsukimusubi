@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="月結び 契印">
+  <defs>
+    <linearGradient id="background" x1="48" y1="40" x2="464" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fffaf4"/>
+      <stop offset="0.48" stop-color="#f8ebe7"/>
+      <stop offset="1" stop-color="#e8f3f1"/>
+    </linearGradient>
+    <radialGradient id="seal" cx="0" cy="0" r="1" gradientTransform="translate(212 178) rotate(51) scale(250)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#fff7f1"/>
+    </radialGradient>
+    <filter id="shadow" x="66" y="64" width="380" height="388" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#8e4d55" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="128" fill="url(#background)"/>
+  <circle cx="418" cy="106" r="74" fill="#ffffff" opacity="0.28"/>
+  <circle cx="92" cy="420" r="84" fill="#ffffff" opacity="0.2"/>
+
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="244" r="168" fill="url(#seal)" stroke="#a95861" stroke-width="8"/>
+    <circle cx="256" cy="244" r="145" fill="none" stroke="#d99a9b" stroke-width="3" stroke-dasharray="8 10"/>
+    <text x="256" y="302" text-anchor="middle" font-size="180" font-family="Yu Mincho, Hiragino Mincho ProN, Noto Serif CJK JP, serif" font-weight="600" fill="#a95861">&#x5951;</text>
+  </g>
+
+  <path d="M223 427c17-25 49-25 66 0-17 25-49 25-66 0Z" fill="#b9d8d4"/>
+  <circle cx="256" cy="427" r="5" fill="#fffaf4" opacity="0.88"/>
+</svg>
+

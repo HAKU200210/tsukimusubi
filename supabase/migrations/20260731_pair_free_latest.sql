@@ -8,13 +8,27 @@ alter table public.monthly_reviews
   add column if not exists question_pack text not null default 'standard',
   add column if not exists extra_answers jsonb not null default '{}'::jsonb;
 
-alter table public.monthly_reviews drop constraint if exists monthly_reviews_question_pack_check;
-alter table public.monthly_reviews add constraint monthly_reviews_question_pack_check
-  check (question_pack in ('standard','future','closeness','repair'));
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'monthly_reviews_question_pack_check'
+      and conrelid = 'public.monthly_reviews'::regclass
+  ) then
+    alter table public.monthly_reviews add constraint monthly_reviews_question_pack_check
+      check (question_pack in ('standard','future','closeness','repair'));
+  end if;
 
-alter table public.monthly_reviews drop constraint if exists monthly_reviews_extra_answers_check;
-alter table public.monthly_reviews add constraint monthly_reviews_extra_answers_check
-  check (jsonb_typeof(extra_answers) = 'object' and char_length(extra_answers::text) <= 4000);
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'monthly_reviews_extra_answers_check'
+      and conrelid = 'public.monthly_reviews'::regclass
+  ) then
+    alter table public.monthly_reviews add constraint monthly_reviews_extra_answers_check
+      check (jsonb_typeof(extra_answers) = 'object' and char_length(extra_answers::text) <= 4000);
+  end if;
+end
+$$;
 
 create table if not exists public.pair_free_anniversaries (
   id uuid primary key default extensions.gen_random_uuid(),
@@ -60,49 +74,103 @@ alter table public.pair_free_anniversaries enable row level security;
 alter table public.pair_free_date_records enable row level security;
 alter table public.pair_free_date_wishes enable row level security;
 
-drop policy if exists "pair free members read anniversaries" on public.pair_free_anniversaries;
-create policy "pair free members read anniversaries"
-on public.pair_free_anniversaries for select to authenticated
-using (public.is_couple_member(couple_id));
-drop policy if exists "pair free members add anniversaries" on public.pair_free_anniversaries;
-create policy "pair free members add anniversaries"
-on public.pair_free_anniversaries for insert to authenticated
-with check (public.is_couple_member(couple_id) and created_by = auth.uid());
-drop policy if exists "pair free members delete anniversaries" on public.pair_free_anniversaries;
-create policy "pair free members delete anniversaries"
-on public.pair_free_anniversaries for delete to authenticated
-using (public.is_couple_member(couple_id));
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_anniversaries'
+      and policyname = 'pair free members read anniversaries'
+  ) then
+    create policy "pair free members read anniversaries"
+      on public.pair_free_anniversaries for select to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_anniversaries'
+      and policyname = 'pair free members add anniversaries'
+  ) then
+    create policy "pair free members add anniversaries"
+      on public.pair_free_anniversaries for insert to authenticated
+      with check (public.is_couple_member(couple_id) and created_by = auth.uid());
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_anniversaries'
+      and policyname = 'pair free members delete anniversaries'
+  ) then
+    create policy "pair free members delete anniversaries"
+      on public.pair_free_anniversaries for delete to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
 
-drop policy if exists "pair free members read date records" on public.pair_free_date_records;
-create policy "pair free members read date records"
-on public.pair_free_date_records for select to authenticated
-using (public.is_couple_member(couple_id));
-drop policy if exists "pair free members add date records" on public.pair_free_date_records;
-create policy "pair free members add date records"
-on public.pair_free_date_records for insert to authenticated
-with check (public.is_couple_member(couple_id) and created_by = auth.uid());
-drop policy if exists "pair free members delete date records" on public.pair_free_date_records;
-create policy "pair free members delete date records"
-on public.pair_free_date_records for delete to authenticated
-using (public.is_couple_member(couple_id));
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_records'
+      and policyname = 'pair free members read date records'
+  ) then
+    create policy "pair free members read date records"
+      on public.pair_free_date_records for select to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_records'
+      and policyname = 'pair free members add date records'
+  ) then
+    create policy "pair free members add date records"
+      on public.pair_free_date_records for insert to authenticated
+      with check (public.is_couple_member(couple_id) and created_by = auth.uid());
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_records'
+      and policyname = 'pair free members delete date records'
+  ) then
+    create policy "pair free members delete date records"
+      on public.pair_free_date_records for delete to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
 
-drop policy if exists "pair free members read date wishes" on public.pair_free_date_wishes;
-create policy "pair free members read date wishes"
-on public.pair_free_date_wishes for select to authenticated
-using (public.is_couple_member(couple_id));
-drop policy if exists "pair free members add date wishes" on public.pair_free_date_wishes;
-create policy "pair free members add date wishes"
-on public.pair_free_date_wishes for insert to authenticated
-with check (public.is_couple_member(couple_id) and created_by = auth.uid());
-drop policy if exists "pair free members update date wishes" on public.pair_free_date_wishes;
-create policy "pair free members update date wishes"
-on public.pair_free_date_wishes for update to authenticated
-using (public.is_couple_member(couple_id))
-with check (public.is_couple_member(couple_id));
-drop policy if exists "pair free members delete date wishes" on public.pair_free_date_wishes;
-create policy "pair free members delete date wishes"
-on public.pair_free_date_wishes for delete to authenticated
-using (public.is_couple_member(couple_id));
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_wishes'
+      and policyname = 'pair free members read date wishes'
+  ) then
+    create policy "pair free members read date wishes"
+      on public.pair_free_date_wishes for select to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_wishes'
+      and policyname = 'pair free members add date wishes'
+  ) then
+    create policy "pair free members add date wishes"
+      on public.pair_free_date_wishes for insert to authenticated
+      with check (public.is_couple_member(couple_id) and created_by = auth.uid());
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_wishes'
+      and policyname = 'pair free members update date wishes'
+  ) then
+    create policy "pair free members update date wishes"
+      on public.pair_free_date_wishes for update to authenticated
+      using (public.is_couple_member(couple_id))
+      with check (public.is_couple_member(couple_id));
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'pair_free_date_wishes'
+      and policyname = 'pair free members delete date wishes'
+  ) then
+    create policy "pair free members delete date wishes"
+      on public.pair_free_date_wishes for delete to authenticated
+      using (public.is_couple_member(couple_id));
+  end if;
+end
+$$;
 
 create or replace function public.pair_free_get_context()
 returns jsonb

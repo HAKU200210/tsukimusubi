@@ -161,12 +161,22 @@
   }
 
   function currentReview(role) {
-    return state.reviews.find(row => row.month === monthKey && row.author_role === role);
+    return state.reviews.find(row => row.month === activeMonthKey() && row.author_role === role);
   }
 
   function reviewsForMonth(month) {
     const rows = state.reviews.filter(row => row.month === month);
     return { a: rows.find(row => row.author_role === 'a'), b: rows.find(row => row.author_role === 'b') };
+  }
+
+  function activeMonthKey() {
+    return state.selectedMonth || monthKey;
+  }
+
+  function previousMonthKey(value = monthKey) {
+    const [year, month] = value.split('-').map(Number);
+    const date = new Date(year, month - 2, 1);
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-01`;
   }
 
   function completedMonths() {
@@ -180,7 +190,7 @@
     const b = roleData('b');
     $('#sealNameA').textContent = a.name;
     $('#sealNameB').textContent = b.name;
-    $('#heroMonth').textContent = monthLabel(monthKey, true);
+    $('#heroMonth').textContent = monthLabel(activeMonthKey(), true);
     [['#avatarA', a.initial], ['#scoreAvatarA', a.initial], ['#avatarB', b.initial], ['#scoreAvatarB', b.initial]].forEach(([selector, value]) => $(selector).textContent = value);
     [['#nameA', a.name], ['#scoreNameA', a.name], ['#legendA', a.name], ['#nameB', b.name], ['#scoreNameB', b.name], ['#legendB', b.name]].forEach(([selector, value]) => $(selector).textContent = value);
     $('#metDate').textContent = displayDate(pair.met_date);
@@ -203,16 +213,32 @@
   }
 
   function renderStatus() {
+    const activeMonth = activeMonthKey();
+    const carryover = activeMonth < monthKey;
     const count = Number(state.status.a) + Number(state.status.b);
     $('#monthProgressCount').textContent = `${count} / 2`;
-    $('#monthProgressText').textContent = count === 2 ? t('今月の契約が完成しました', '本月契约已经完成') : count === 1 ? t('ひとりの手紙を預かっています', '已收到一人的来信') : t('今月の契約は進行中', '本月契约进行中');
+    $('#monthProgressText').textContent = carryover
+      ? t(`${Number(activeMonth.slice(5, 7))}月の契約はまだ完了していません`, `${Number(activeMonth.slice(5, 7))}月契约尚未完成`)
+      : count === 2 ? t('今月の契約が完成しました', '本月契约已经完成') : count === 1 ? t('ひとりの手紙を預かっています', '已收到一人的来信') : t('今月の契約は進行中', '本月契约进行中');
     $('#stateA').textContent = state.status.a ? t('封印済み ✓', '已封存 ✓') : t('記入待ち', '等待填写');
     $('#stateB').textContent = state.status.b ? t('封印済み ✓', '已封存 ✓') : t('記入待ち', '等待填写');
+    const carryoverBanner = $('#carryoverBanner');
+    carryoverBanner.classList.toggle('hidden', !carryover);
+    if (carryover) {
+      $('#carryoverTitle').textContent = t(`${Number(activeMonth.slice(5, 7))}月の契約を先に完成させましょう`, `请先完成${Number(activeMonth.slice(5, 7))}月契约`);
+      $('#carryoverText').textContent = t('提出済みの回答は安全に保存されています。もうひとりが提出すると、ふたりの契約が完成します。', '已提交的回答仍安全保存在云端；另一人补交后，两个人的契约即可完成。');
+    }
     const mine = state.context.role;
     const submitted = state.status[mine];
     const button = $('#startReview');
-    button.querySelector('span').textContent = count === 2 ? t('今月の契約を読む', '查看本月契约') : submitted ? t('相手の提出を待っています', '等待对方提交') : t('今月の振り返りを始める', '开始本月回顾');
-    button.disabled = submitted && count !== 2;
+    button.querySelector('span').textContent = count === 2
+      ? t(`${Number(activeMonth.slice(5, 7))}月の契約を読む`, `查看${Number(activeMonth.slice(5, 7))}月契约`)
+      : submitted
+        ? t('提出済みの回答を確認する', '查看已提交的回答')
+        : carryover
+          ? t(`${Number(activeMonth.slice(5, 7))}月の振り返りを続ける`, `继续填写${Number(activeMonth.slice(5, 7))}月回顾`)
+          : t('今月の振り返りを始める', '开始本月回顾');
+    button.disabled = false;
   }
 
   function renderScores() {
@@ -322,9 +348,14 @@
   async function refreshData() {
     state.context = backend.context;
     if (!state.context) return;
-    const [reviews, status, photos, memories] = await Promise.all([backend.loadReviews(), backend.monthStatus(monthKey), backend.getPhotos(), backend.loadMemories()]);
+    const previousMonth = previousMonthKey();
+    const [reviews, currentStatus, previousStatus, photos, memories] = await Promise.all([
+      backend.loadReviews(), backend.monthStatus(monthKey), backend.monthStatus(previousMonth), backend.getPhotos(), backend.loadMemories()
+    ]);
+    const previousCount = Number(previousStatus.a) + Number(previousStatus.b);
     state.reviews = reviews;
-    state.status = status;
+    state.selectedMonth = previousCount === 1 ? previousMonth : monthKey;
+    state.status = previousCount === 1 ? previousStatus : currentStatus;
     state.photos = photos;
     state.memories = memories;
     renderAll();
@@ -363,6 +394,18 @@
       const extras = pack.questions.map(question => `<div class="quote-block plus-quote"><span>${t(question.ja,question.zh)}</span><p>${e(review.extra_answers?.[question.key] || '—')}</p></div>`).join('');
       return `<article class="words-person"><h2>${e(person.name)} ${t('から、ふたりへ', '写给我们')}</h2>${textFields.map(field => `<div class="quote-block"><span>${t(field.ja, field.zh)}</span><p>${e(review[field.key === 'selfChange' ? 'self_change' : field.key])}</p></div>`).join('')}${extras}</article>`;
     }).join('');
+    showView('result');
+  }
+
+  function renderOwnReview(month) {
+    const review = state.reviews.find(row => row.month === month && row.author_role === state.context.role);
+    if (!review) return;
+    const person = roleData(state.context.role);
+    const pack = questionPacks[review.question_pack] || questionPacks.standard;
+    const extras = pack.questions.map(question => `<div class="quote-block plus-quote"><span>${t(question.ja,question.zh)}</span><p>${e(review.extra_answers?.[question.key] || '—')}</p></div>`).join('');
+    $('#resultHero').innerHTML = `<span class="section-kicker">${e(monthLabel(month, true))}</span><h1>${t('回答は安全に保存されています', '回答已安全保存')}</h1><p>${t('相手が提出するまで、ここでは自分の回答だけ確認できます。', '对方提交前，这里只会显示你自己的回答。')}</p>`;
+    $('#scoreCompare').innerHTML = categories.map(category => `<article class="score-box"><span>${t(category.ja, category.zh)}</span><strong>${Number(review.scores?.[category.key] || 0)}</strong><small>/ 10</small></article>`).join('');
+    $('#wordsCompare').innerHTML = `<article class="words-person own-review"><h2>${e(person.name)} ${t('の提出済み回答', '已提交的回答')}</h2>${textFields.map(field => `<div class="quote-block"><span>${t(field.ja, field.zh)}</span><p>${e(review[field.key === 'selfChange' ? 'self_change' : field.key])}</p></div>`).join('')}${extras}<div class="quote-block"><span>${t('来月も一緒にいたい？', '下个月还想继续在一起吗？')}</span><p>${e(renewText(review.renew))}</p></div></article>`;
     showView('result');
   }
 
@@ -435,16 +478,14 @@
     const extraAnswers = Object.fromEntries((questionPacks[questionPack]?.questions || []).map(question => [question.key, form.get(`extra_${question.key}`)?.trim() || '']));
     const review = { scores, renew: form.get('renew'), questionPack, extraAnswers };
     textFields.forEach(field => review[field.key] = form.get(field.key).trim());
+    const submittedMonth = activeMonthKey();
     try {
-      await backend.submitReview(monthKey, review);
+      await backend.submitReview(submittedMonth, review);
       await refreshData();
       showView('home');
       showToast(t('回答を安全に封印しました。', '回答已安全封存。'));
-      if (state.status.a && state.status.b) {
-        state.reviews = await backend.loadReviews();
-        renderAll();
-        renderResult(monthKey);
-      }
+      const submittedPair = reviewsForMonth(submittedMonth);
+      if (submittedPair.a && submittedPair.b) renderResult(submittedMonth);
     } catch (error) { showToast(errorText(error)); }
     finally { button.disabled = false; }
   }
@@ -611,8 +652,9 @@
     $('#codesSaved').onchange = event => $('#finishCodes').disabled = !event.target.checked;
     $('#finishCodes').onclick = () => { closeModal('codesModal'); showView('home'); };
     $('#startReview').onclick = () => {
-      if (state.status.a && state.status.b) return renderResult(monthKey);
-      if (state.status[state.context.role]) return;
+      const activeMonth = activeMonthKey();
+      if (state.status.a && state.status.b) return renderResult(activeMonth);
+      if (state.status[state.context.role]) return renderOwnReview(activeMonth);
       renderReviewForm(); showView('review');
     };
     $('#historyList').onclick = event => { const item = event.target.closest('[data-month]'); if (item) renderResult(item.dataset.month); };

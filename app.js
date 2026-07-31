@@ -368,6 +368,8 @@
 
   function renderReviewForm() {
     const mine = roleData(state.context.role);
+    const activeMonth = activeMonthKey();
+    $('#reviewMonthLabel').textContent = `${monthLabel(activeMonth, true)} · SEALED LETTER`;
     $('#reviewerName').textContent = mine.name;
     $('#reviewForm').reset();
     $('#scoreFields').innerHTML = categories.map(category => `<div class="score-row"><label><b>${t(category.ja, category.zh)}</b><small>${t('パートナーへの評価', '给对象的评价')}</small></label><input type="range" name="${category.key}" min="1" max="10" value="7"><output class="score-value">7</output></div>`).join('');
@@ -376,6 +378,20 @@
     renderExtraFields('standard');
     $('#questionPack').onchange = event => renderExtraFields(event.target.value);
     $$('#scoreFields input').forEach(input => input.addEventListener('input', () => input.nextElementSibling.textContent = input.value));
+  }
+
+  function renderLateView() {
+    const activeMonth = activeMonthKey();
+    const monthNumber = Number(activeMonth.slice(5, 7));
+    $('#lateMonthText').textContent = t(
+      `${monthNumber}月の手紙が、あなたの回答を待っています。`,
+      `${monthNumber}月的来信正在等待你的回答。`
+    );
+    $('#lateContinueText').textContent = t(
+      `${monthNumber}月を振り返る`,
+      `回顾${monthNumber}月`
+    );
+    showView('late');
   }
 
   function renderExtraFields(packKey) {
@@ -660,8 +676,10 @@
       const activeMonth = activeMonthKey();
       if (state.status.a && state.status.b) return renderResult(activeMonth);
       if (state.status[state.context.role]) return renderOwnReview(activeMonth);
+      if (activeMonth < monthKey) return renderLateView();
       renderReviewForm(); showView('review');
     };
+    $('#lateContinue').onclick = () => { renderReviewForm(); showView('review'); };
     $('#historyList').onclick = event => { const item = event.target.closest('[data-month]'); if (item) renderResult(item.dataset.month); };
     $$('[data-add-memory]').forEach(button => button.onclick = () => openMemoryForm(button.dataset.addMemory));
     $('.memory-section').onclick = async event => {

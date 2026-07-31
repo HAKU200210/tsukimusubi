@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260801a" />
+  <link rel="stylesheet" href="styles.css?v=20260801c" />
 </head>
 <body>
   <div class="wash wash-a"></div><div class="wash wash-b"></div>
@@ -134,9 +134,27 @@
       </section>
     </section>
 
+    <section id="lateView" class="view shell narrow">
+      <button class="back-button" data-target="home">← <span data-ja="ホームへ戻る" data-zh="返回主页">ホームへ戻る</span></button>
+      <article class="late-card">
+        <span class="section-kicker">A LETTER LEFT WAITING</span>
+        <div class="late-moon" aria-hidden="true">↶</div>
+        <h1 data-ja="遅れててごめん。" data-zh="抱歉来晚了。">遅れててごめん。</h1>
+        <p id="lateMonthText">前月の手紙が、あなたの回答を待っています。</p>
+        <div class="late-sealed-note">
+          <span aria-hidden="true">◌</span>
+          <div>
+            <b data-ja="相手の回答は、まだ封印されています。" data-zh="对方的回答仍处于封印状态。">相手の回答は、まだ封印されています。</b>
+            <small data-ja="あなたが提出するまで、内容は表示されません。" data-zh="在你提交之前，不会显示对方的内容。">あなたが提出するまで、内容は表示されません。</small>
+          </div>
+        </div>
+        <button id="lateContinue" class="primary-button" type="button"><span id="lateContinueText">前月を振り返る</span><b>→</b></button>
+      </article>
+    </section>
+
     <section id="reviewView" class="view shell narrow">
       <button class="back-button" data-target="home">← <span data-ja="ホームへ戻る" data-zh="返回主页">ホームへ戻る</span></button>
-      <div class="form-heading"><span class="section-kicker">SEALED LETTER</span><h1><span id="reviewerName">—</span><span data-ja="の今月の手紙" data-zh="的本月来信">の今月の手紙</span></h1><p data-ja="正解はありません。今月のふたりを、あなたの言葉で残してください。" data-zh="没有标准答案，请用自己的话留下这个月的感受。">正解はありません。今月のふたりを、あなたの言葉で残してください。</p></div>
+      <div class="form-heading"><span id="reviewMonthLabel" class="section-kicker">SEALED LETTER</span><h1><span id="reviewerName">—</span><span data-ja="の今月の手紙" data-zh="的本月来信">の今月の手紙</span></h1><p data-ja="正解はありません。今月のふたりを、あなたの言葉で残してください。" data-zh="没有标准答案，请用自己的话留下这个月的感受。">正解はありません。今月のふたりを、あなたの言葉で残してください。</p></div>
       <form id="reviewForm">
         <article class="form-card"><div class="step-title"><span>01</span><div><h2 data-ja="パートナーへの6つの得点" data-zh="给对象的六项评分">パートナーへの6つの得点</h2><p data-ja="1から10まで、今月感じたままに。" data-zh="从1到10，按照本月真实感受评分。">1から10まで、今月感じたままに。</p></div></div><div id="scoreFields" class="score-fields"></div></article>
         <article class="form-card"><div class="step-title"><span>02</span><div><h2 data-ja="今月の質問テーマ" data-zh="本月问题主题">今月の質問テーマ</h2><p data-ja="ふたりに合う深掘り質問を、毎月自由に選べます。" data-zh="每个月都可以自由选择适合两个人的深入问题。">ふたりに合う深掘り質問を、毎月自由に選べます。</p></div></div><label class="pack-select"><span data-ja="質問パック" data-zh="问题包">質問パック</span><select id="questionPack" name="questionPack"></select></label><div id="extraFields"></div></article>
@@ -173,7 +191,7 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
-  <script src="backend.js?v=20260801b"></script>
-  <script src="app.js?v=20260801b"></script>
+  <script src="backend.js?v=20260801c"></script>
+  <script src="app.js?v=20260801c"></script>
 </body>
 </html>

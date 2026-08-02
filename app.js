@@ -63,6 +63,7 @@
     photos: [],
     memories: { anniversaries: [], dateRecords: [], dateWishes: [] },
     selectedMonth: monthKey,
+    editingMonth: null,
     lineProfile: null
   };
 
@@ -85,7 +86,9 @@
   function errorText(error) {
     const message = String(error?.message || error || 'Unknown error');
     if (/Invalid invitation code|Invalid pairing code/i.test(message)) return t('招待コードが正しくありません。', '邀请码不正确。');
+    if (/Both reviews are already submitted/i.test(message)) return t('相手が提出したため、回答はもう修正できません。', '对方已经提交，回答已锁定，无法再修改。');
     if (/Already submitted/i.test(message)) return t('今月の回答は提出済みです。', '本月回答已经提交。');
+    if (/No submitted review/i.test(message)) return t('修正する回答が見つかりません。', '找不到需要修改的回答。');
     if (/Album quota/i.test(message)) return t('アルバムの保存上限に達しました。', '已达到相册保存上限。');
     if (/Anniversary quota|Date record quota|Date wish quota|Memory quota/i.test(message)) return t('保存上限に達しました。', '已达到保存上限。');
     if (/Free feature migration required/i.test(message)) return t('最新版のデータ更新が必要です。', '需要先完成最新版数据库更新。');
@@ -366,7 +369,7 @@
     renderAll();
   }
 
-  function renderReviewForm() {
+  function renderReviewForm(review = null) {
     const mine = roleData(state.context.role);
     const activeMonth = activeMonthKey();
     $('#reviewMonthLabel').textContent = `${monthLabel(activeMonth, true)} · SEALED LETTER`;
@@ -375,9 +378,28 @@
     $('#scoreFields').innerHTML = categories.map(category => `<div class="score-row"><label><b>${t(category.ja, category.zh)}</b><small>${t('パートナーへの評価', '给对象的评价')}</small></label><input type="range" name="${category.key}" min="1" max="10" value="7"><output class="score-value">7</output></div>`).join('');
     $('#textFields').innerHTML = textFields.map(field => `<div class="field"><label>${t(field.ja, field.zh)}<small>${t('短くても、正直な言葉で大丈夫です。', '写得简短也没关系，真诚就好。')}</small></label><textarea required maxlength="500" name="${field.key}"></textarea></div>`).join('');
     $('#questionPack').innerHTML = Object.entries(questionPacks).map(([key, pack]) => `<option value="${key}">${t(pack.ja,pack.zh)}</option>`).join('');
-    renderExtraFields('standard');
+    const packKey = review?.question_pack || 'standard';
+    $('#questionPack').value = packKey;
+    renderExtraFields(packKey);
     $('#questionPack').onchange = event => renderExtraFields(event.target.value);
     $$('#scoreFields input').forEach(input => input.addEventListener('input', () => input.nextElementSibling.textContent = input.value));
+    const submitText = $('#reviewForm .submit-zone .primary-button span');
+    submitText.textContent = review ? t('修正内容を保存', '保存修改内容') : t('回答を封印して提出', '密封并提交回答');
+    if (!review) return;
+    categories.forEach(category => {
+      const input = $('#reviewForm').elements[category.key];
+      input.value = Number(review.scores?.[category.key] || 7);
+      input.nextElementSibling.textContent = input.value;
+    });
+    textFields.forEach(field => {
+      const key = field.key === 'selfChange' ? 'self_change' : field.key;
+      $('#reviewForm').elements[field.key].value = review[key] || '';
+    });
+    (questionPacks[packKey]?.questions || []).forEach(question => {
+      $('#reviewForm').elements[`extra_${question.key}`].value = review.extra_answers?.[question.key] || '';
+    });
+    const renew = $('#reviewForm').querySelector(`[name="renew"][value="${review.renew}"]`);
+    if (renew) renew.checked = true;
   }
 
   function renderLateView() {
@@ -427,6 +449,12 @@
     $('#resultHero').innerHTML = `<span class="section-kicker">${e(monthLabel(month, true))}</span><h1>${t('回答は安全に保存されています', '回答已安全保存')}</h1><p>${t('相手が提出するまで、ここでは自分の回答だけ確認できます。', '对方提交前，这里只会显示你自己的回答。')}</p>`;
     $('#scoreCompare').innerHTML = categories.map(category => `<article class="score-box"><span>${t(category.ja, category.zh)}</span><strong>${Number(review.scores?.[category.key] || 0)}</strong><small>/ 10</small></article>`).join('');
     $('#wordsCompare').innerHTML = `<article class="words-person own-review"><h2>${e(person.name)} ${t('の提出済み回答', '已提交的回答')}</h2>${textFields.map(field => `<div class="quote-block"><span>${t(field.ja, field.zh)}</span><p>${e(review[field.key === 'selfChange' ? 'self_change' : field.key])}</p></div>`).join('')}${extras}<div class="quote-block"><span>${t('来月も一緒にいたい？', '下个月还想继续在一起吗？')}</span><p>${e(renewText(review.renew))}</p></div></article>`;
+    $('#wordsCompare').insertAdjacentHTML('beforeend', `<div class="own-review-actions"><button id="editOwnReview" class="ghost-button" type="button">${t('提出内容を修正する', '修改已提交内容')}</button><p>${t('相手が提出するまで修正できます。', '对方提交前可以修改。')}</p></div>`);
+    $('#editOwnReview').onclick = () => {
+      state.editingMonth = month;
+      renderReviewForm(review);
+      showView('review');
+    };
     showView('result');
   }
 
@@ -500,11 +528,16 @@
     const review = { scores, renew: form.get('renew'), questionPack, extraAnswers };
     textFields.forEach(field => review[field.key] = form.get(field.key).trim());
     const submittedMonth = activeMonthKey();
+    const wasEditing = state.editingMonth === submittedMonth;
     try {
-      await backend.submitReview(submittedMonth, review);
+      if (wasEditing) await backend.updateReview(submittedMonth, review);
+      else await backend.submitReview(submittedMonth, review);
+      state.editingMonth = null;
       await refreshData();
       showView('home');
-      showToast(t('回答を安全に封印しました。', '回答已安全封存。'));
+      showToast(wasEditing
+        ? t('修正内容を保存しました。', '修改内容已保存。')
+        : t('回答を安全に封印しました。', '回答已安全封存。'));
       const submittedPair = reviewsForMonth(submittedMonth);
       if (submittedPair.a && submittedPair.b) renderResult(submittedMonth);
     } catch (error) { showToast(errorText(error)); }
@@ -677,9 +710,10 @@
       if (state.status.a && state.status.b) return renderResult(activeMonth);
       if (state.status[state.context.role]) return renderOwnReview(activeMonth);
       if (activeMonth < monthKey) return renderLateView();
+      state.editingMonth = null;
       renderReviewForm(); showView('review');
     };
-    $('#lateContinue').onclick = () => { renderReviewForm(); showView('review'); };
+    $('#lateContinue').onclick = () => { state.editingMonth = null; renderReviewForm(); showView('review'); };
     $('#historyList').onclick = event => { const item = event.target.closest('[data-month]'); if (item) renderResult(item.dataset.month); };
     $$('[data-add-memory]').forEach(button => button.onclick = () => openMemoryForm(button.dataset.addMemory));
     $('.memory-section').onclick = async event => {

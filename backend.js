@@ -303,6 +303,44 @@
     writeDemo(db);
   }
 
+  async function updateReview(month, review) {
+    if (!context) throw new Error('Pairing required');
+    if (mode === 'cloud') {
+      const result = await client.rpc('pair_free_update_monthly_review', {
+        p_month: month,
+        p_scores: review.scores,
+        p_grateful: review.grateful,
+        p_happy: review.happy,
+        p_difficult: review.difficult,
+        p_hope: review.hope,
+        p_self_change: review.selfChange,
+        p_renew: review.renew,
+        p_question_pack: review.questionPack || 'standard',
+        p_extra_answers: review.extraAnswers || {}
+      });
+      if (result.error) throw result.error;
+      return;
+    }
+    const db = readDemo();
+    const rows = (db.reviews || []).filter(row => row.month === month);
+    if (rows.some(row => newRole(row.author_role) !== db.role)) throw new Error('Both reviews are already submitted');
+    const current = rows.find(row => newRole(row.author_role) === db.role);
+    if (!current) throw new Error('No submitted review');
+    Object.assign(current, {
+      scores: review.scores,
+      grateful: review.grateful,
+      happy: review.happy,
+      difficult: review.difficult,
+      hope: review.hope,
+      self_change: review.selfChange,
+      renew: review.renew,
+      question_pack: review.questionPack || 'standard',
+      extra_answers: review.extraAnswers || {},
+      submitted_at: new Date().toISOString()
+    });
+    writeDemo(db);
+  }
+
   async function getPhotos() {
     if (!context) return [];
     if (mode === 'cloud') {
@@ -529,7 +567,7 @@
   }
 
   window.TsukiBackend = {
-    init, createPair, joinPair, switchDemoRole, loadReviews, monthStatus, submitReview,
+    init, createPair, joinPair, switchDemoRole, loadReviews, monthStatus, submitReview, updateReview,
     getPhotos, addPhoto, deletePhoto, loadMemories, createMemory, deleteMemory, setWishStatus,
     updateProfile, rotateInvite, rotateRecovery, exportData, deleteAccount,
     get mode() { return mode; },
